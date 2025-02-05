@@ -20,7 +20,7 @@ function groupWords(words: string[]): string[][] {
     let i = 0;
     while (i < words.length) {
         // Each group will have between 15 and 20 words
-        const groupSize = Math.min(15 + Math.floor(Math.random() * 6), words.length - i);
+        const groupSize = Math.min(12 + Math.floor(Math.random() * 6), words.length - i);
         groups.push(words.slice(i, i + groupSize));
         i += groupSize;
     }
