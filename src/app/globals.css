@@ -2,11 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
 :root {
   --background: #f8f9fa;
   --foreground: #212529;
+  --gray-default: #6c757d;
+  --white-hover: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,6 +22,7 @@ body {
   font-family: Mulish, Arial, Helvetica, sans-serif;
 }
 
+/* Blinking caret */
 @keyframes blink {
   50% {
     opacity: 0;
@@ -30,4 +31,116 @@ body {
 
 .blinking-caret {
   animation: blink 1s step-end infinite;
+}
+
+/* BUTTONS: Text only, no borders, default gray turning white on hover/focus */
+button,
+.text-button {
+  background: transparent;
+  border: none;
+  color: var(--gray-default);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  margin: 0;
+  outline: none;
+}
+
+button:hover,
+button:focus,
+button:active,
+.text-button:hover,
+.text-button:focus,
+.text-button:active {
+  color: var(--white-hover);
+}
+
+/* DROPDOWNS: Text only, no borders */
+select,
+.text-dropdown {
+  background: transparent;
+  border: none;
+  color: var(--gray-default);
+  font: inherit;
+  padding: 0;
+  margin: 0;
+  outline: none;
+}
+
+select:hover,
+select:focus,
+.text-dropdown:hover,
+.text-dropdown:focus {
+  color: var(--white-hover);
+}
+
+/* HIDE SCROLLBARS */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Fancy scroll container with fade effect at top and bottom */
+.fancy-scroll {
+  position: relative;
+  overflow: hidden;
+  border: none !important;
+  height: 200px;
+  /* 4 lines x 50px per line */
+}
+
+.fancy-scroll>.inner-scroll {
+  height: 100%;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 20px;
+  /* extra padding for fade effect */
+}
+
+.fancy-scroll::before,
+.fancy-scroll::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 20px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.fancy-scroll::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--background), transparent);
+}
+
+.fancy-scroll::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--background), transparent);
+}
+
+/* Reset arrow button additional styling */
+.reset-arrow {
+  font-size: 2rem;
+  color: whitesmoke;
+  /* large arrow */
+  padding: 0.5rem;
+}
+
+footer {
+  background-color: #1f2937;
+  /* Tailwind's gray-800 */
+  color: #fff;
+}
+
+footer a {
+  transition: color 0.2s ease-in-out;
+}
+
+footer a:hover {
+  color: #d1d5db;
+  /* Tailwind's gray-300 */
 }
