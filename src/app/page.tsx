@@ -26,13 +26,14 @@ export default function TypingTest() {
   useEffect(() => {
     resetTest();
   }, [timer, selectedWordSet]);
+
   useEffect(() => {
     if (timeLeft !== null && timeLeft > 0) {
       const interval = setInterval(() => setTimeLeft((t) => t! - 1), 1000);
       return () => clearInterval(interval);
     } else if (timeLeft === 0) {
       calculateWPM();
-      setTimeout(() => resetTest(), 2000); // Auto-reset after 2 seconds
+      setTimeout(() => resetTest(), 2000);
     }
   }, [timeLeft]);
 
@@ -65,7 +66,7 @@ export default function TypingTest() {
   }
 
   function resetTest() {
-    setWords(shuffleArray([...wordSets[selectedWordSet]]).map(word => word + " "));
+    setWords(shuffleArray([...wordSets[selectedWordSet]]).slice(0, 60));
     setCurrentIndex(0);
     setInput("");
     setErrorCount(0);
@@ -76,11 +77,12 @@ export default function TypingTest() {
   }
 
   function calculateWPM() {
+    const totalCharactersTyped = input.length + currentIndex;
+    const accuracy = totalCharactersTyped > 0 ? ((totalCharactersTyped - errorCount) / totalCharactersTyped) * 100 : 100;
     const timeElapsedInMinutes = timer / 60;
     const wordsTyped = currentIndex;
-    const mistakes = errorCount;
-    const calculatedWPM = (wordsTyped - mistakes) / timeElapsedInMinutes;
-    setWpm(Math.max(0, Math.round(calculatedWPM))); // Ensure WPM is not negative
+    const calculatedWPM = wordsTyped / timeElapsedInMinutes;
+    setWpm(Math.max(0, Math.round(calculatedWPM)));
   }
 
   function handleFocus() {
@@ -93,14 +95,7 @@ export default function TypingTest() {
 
   return (
     <div className={`p-4 text-center flex flex-col items-center justify-center min-h-screen ${flash ? "bg-red-500" : ""}`}>
-      {!isFocused && (
-        <div
-          className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 text-white text-xl cursor-pointer"
-          onClick={() => inputRef.current?.focus()}
-        >
-          Press here to focus
-        </div>
-      )}
+
       <h1 className="text-2xl font-bold mb-4">Typing Test</h1>
       <div className="mb-4 flex gap-4">
         <select
@@ -112,47 +107,58 @@ export default function TypingTest() {
             <option key={set} value={set}>{set}</option>
           ))}
         </select>
-        <select
-          className="p-2 border rounded text-black"
-          value={timer}
-          onChange={(e) => setTimer(Number(e.target.value))}
-        >
+        <div className="flex gap-2">
           {[15, 30, 60, 120].map((t) => (
-            <option key={t} value={t}>{t}s</option>
-          ))}
-        </select>
-      </div>
-      <div className="relative w-full max-w-3xl p-4 bg-gray-800 text-white rounded-lg">
-        <input
-          ref={inputRef}
-          className="absolute w-full h-full opacity-0"
-          value={input}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          autoFocus
-        />
-        <div className="p-4 text-lg flex flex-wrap justify-center items-center min-h-[120px] text-center">
-          {words.map((word, index) => (
-            <span
-              key={index}
-              className={index === currentIndex ? "text-blue-500 relative" : index < currentIndex ? "text-gray-400" : ""}
-              style={{ whiteSpace: "pre" }}
-            >
-              {word.split('').map((char, charIndex) => (
-                <span key={charIndex} className="relative">
-                  {char}
-                  {index === currentIndex && charIndex === caretPosition && (
-                    <span className="absolute left-0 top-5 w-3 h-0.5 bg-white blinking-caret" />
-                  )}
-                </span>
-              ))}
-            </span>
+            <button key={t} className="p-2 border rounded text-white" onClick={() => setTimer(t)}>{t}s</button>
           ))}
         </div>
       </div>
+      <div className="relative w-full max-w-3xl">
+        <div className="relative w-full p-4 bg-gray-800 text-white rounded-lg">
+          <input
+            ref={inputRef}
+            className="absolute w-full h-full opacity-0"
+            value={input}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            autoFocus
+          />
+          <div className="p-4 text-lg flex flex-wrap justify-center items-center min-h-[180px] text-center">
+            {words.slice(0, 900).map((word, index) => (
+              <span
+                key={index}
+                className={index === currentIndex ? "text-blue-500 relative" : index < currentIndex ? "text-gray-400" : ""}
+                style={{ whiteSpace: "pre-wrap" }}
+              >
+                {word.split('').map((char, charIndex) => (
+                  <span key={charIndex} className="relative">
+                    {char}
+                    {index === currentIndex && charIndex === caretPosition && (
+                      <span className="absolute left-0 top-5 w-3 h-0.5 bg-white blinking-caret" />
+                    )}
+                  </span>
+                ))}
+                <span className="inline-block">&nbsp;</span>
+              </span>
+            ))}
+          </div>
+        </div>
+        {!isFocused && (
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-70 text-white text-xl cursor-pointer backdrop-blur-md z-10"
+            onClick={() => inputRef.current?.focus()}
+            onTouchEnd={() => inputRef.current?.focus()}
+          >
+            Press here to focus
+          </div>
+        )}
+      </div>
+
+
       <p className="mt-4">Time Left: {timeLeft !== null ? timeLeft : timer}s</p>
       {wpm !== null && <p className="mt-4 font-bold">WPM: {wpm}</p>}
+      <p className="mt-2">Accuracy: {((input.length + currentIndex - errorCount) / (input.length + currentIndex) * 100).toFixed(2)}%</p>
     </div>
   );
 }
